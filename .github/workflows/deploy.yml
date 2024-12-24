@@ -1,56 +1,44 @@
-name: Deploy to Netlify
+name: Deploy All Apps to Netlify
 
 on:
   push:
     branches:
-      - main
+      - main # Replace with your desired branch
   pull_request:
     branches:
-      - main
+      - main # Replace with your desired branch
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: '20.x' # Replace with your Node.js version
 
       - name: Install dependencies
         run: |
           npm install --legacy-peer-deps
 
-      - name: Identify affected projects
-        id: affected
+      - name: Build and deploy Angular app
         run: |
-          affected_projects=$(npx nx affected:apps --plain)
-          echo "Affected projects: $affected_projects"
-          echo "::set-output name=affected_apps::$affected_projects"
+          npx nx build ng-app --prod
+          # Add deployment command for the Angular app (e.g., Netlify CLI or API)
+          npx netlify deploy --dir=dist/apps/ng-app --auth=$NETLIFY_AUTH_TOKEN --site=$NETLIFY_SITE_ID_NG_APP --prod
 
-      - name: Deploy affected apps to Netlify
-        if: steps.affected.outputs.affected_apps != ''
+      - name: Build and deploy React app
         run: |
-          affected_apps=${{ steps.affected.outputs.affected_apps }}
-          for app in $affected_apps; do
-            echo "Deploying $app to Netlify"
-            
-            # Deploy Angular app to Netlify
-            if [[ "$app" == "ng-app" ]]; then
-              npx netlify deploy --dir=dist/apps/ng-app --auth=$NETLIFY_AUTH_TOKEN --site=$NETLIFY_SITE_ID_NG_APP --prod
-            fi
+          npx nx build react-app --prod
+          # Add deployment command for the React app (e.g., Netlify CLI or API)
+          npx netlify deploy --dir=dist/apps/react-app --auth=$NETLIFY_AUTH_TOKEN --site=$NETLIFY_SITE_ID_REACT_APP --prod
 
-            # Deploy React app to Netlify
-            if [[ "$app" == "react-app" ]]; then
-              npx netlify deploy --dir=dist/apps/react-app --auth=$NETLIFY_AUTH_TOKEN --site=$NETLIFY_SITE_ID_REACT_APP --prod
-            fi
-
-            # Deploy Node.js API app to Netlify (if applicable)
-            if [[ "$app" == "api-app" ]]; then
-              npx netlify deploy --dir=dist/apps/api-app --auth=$NETLIFY_AUTH_TOKEN --site=$NETLIFY_SITE_ID_API_APP --prod
-            fi
-          done
+      - name: Build and deploy Node.js API app
+        run: |
+          npx nx build api-app --prod
+          # Add deployment command for the Node.js API (e.g., Heroku, DigitalOcean, etc.)
+          npx netlify deploy --dir=dist/apps/api-app --auth=$NETLIFY_AUTH_TOKEN --site=$NETLIFY_SITE_ID_API_APP --prod
