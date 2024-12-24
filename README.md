@@ -12,6 +12,8 @@ Run below code to see it running.
 
 Visit the Angular application at [http://localhost:4200](http://localhost:4200).
 
+[![Netlify Status](https://api.netlify.com/api/v1/badges/362e8b5c-3fa3-425c-9823-db1089345cc6/deploy-status)](https://app.netlify.com/sites/sachin-monorepo-angular/deploys)
+
 ## React Project
 
 Run below code to see it running.
