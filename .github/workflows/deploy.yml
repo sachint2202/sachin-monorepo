@@ -1,0 +1,56 @@
+name: Deploy to Netlify
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: |
+          npm install
+
+      - name: Identify affected projects
+        id: affected
+        run: |
+          affected_projects=$(npx nx affected:apps --plain)
+          echo "Affected projects: $affected_projects"
+          echo "::set-output name=affected_apps::$affected_projects"
+
+      - name: Deploy affected apps to Netlify
+        if: steps.affected.outputs.affected_apps != ''
+        run: |
+          affected_apps=${{ steps.affected.outputs.affected_apps }}
+          for app in $affected_apps; do
+            echo "Deploying $app to Netlify"
+            
+            # Deploy Angular app to Netlify
+            if [[ "$app" == "ng-app" ]]; then
+              npx netlify deploy --dir=dist/apps/ng-app --auth=$NETLIFY_AUTH_TOKEN --site=$NETLIFY_SITE_ID_NG_APP --prod
+            fi
+
+            # Deploy React app to Netlify
+            if [[ "$app" == "react-app" ]]; then
+              npx netlify deploy --dir=dist/apps/react-app --auth=$NETLIFY_AUTH_TOKEN --site=$NETLIFY_SITE_ID_REACT_APP --prod
+            fi
+
+            # Deploy Node.js API app to Netlify (if applicable)
+            if [[ "$app" == "api-app" ]]; then
+              npx netlify deploy --dir=dist/apps/api-app --auth=$NETLIFY_AUTH_TOKEN --site=$NETLIFY_SITE_ID_API_APP --prod
+            fi
+          done

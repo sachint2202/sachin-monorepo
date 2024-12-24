@@ -4,6 +4,7 @@ export function App() {
   return (
     <div>
       <h1>Sachin's Monorepo React Project</h1>
+      <p>Hello wonderful stranger!</p>
 
       {/* START: routes */}
       {/* These routes and navigation have been generated for you */}
