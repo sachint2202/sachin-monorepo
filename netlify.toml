@@ -2,14 +2,19 @@
   # Build command for Angular app
   command = "npx nx build ng-app --prod"
   publish = "dist/apps/ng-app"
+  
+  # Build command for React app
+  [build.processing]
+  command = "npx nx build react-app --prod"
+  publish = "dist/apps/react-app"
+  
+  # Build command for Node.js API
+  [build.processing]
+  command = "npx nx build api-app"
+  publish = "dist/apps/api-app"
 
 [[plugins]]
   package = "@netlify/plugin-angular"
-
-# Build command for React app
-[[build]]
-  command = "npx nx build react-app --prod"
-  publish = "dist/apps/react-app"
 
 [[plugins]]
   package = "@netlify/plugin-react"
@@ -17,7 +22,7 @@
 [[build.environment]]
   NODE_ENV = "production"
 
-# Settings for the Node.js API (functions)
+# Settings for Node.js API (functions)
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/api/:splat"
@@ -25,8 +30,3 @@
 
 [[functions]]
   directory = "dist/apps/api-app/functions"
-
-# Optional: Customize the Node.js build command if needed
-[[build]]
-  command = "npx nx build api-app"
-  publish = "dist/apps/api-app"
